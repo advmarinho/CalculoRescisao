@@ -1,0 +1,59 @@
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.format.DateTimeFormatter;
+import java.util.Map;
+
+public class ExportadorTXT {
+
+    public static void exportar(String nomeArquivo, Funcionario funcionario, Map<String, Double> detalhes) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(nomeArquivo))) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            
+            writer.write("Dados para o cálculo: \n");
+            writer.write("-----------------------------------------\n");
+            writer.write("Nome do funcionário: \t" + funcionario.getNome() + "\n");
+            writer.write("Data de admissão: \t" + funcionario.getDataAdmissao().format(formatter) + "\n");
+            writer.write("Data de demissão: \t" + funcionario.getDataDemissao().format(formatter) + "\n");
+            writer.write("Último salário: \t" + String.format("%,.2f", funcionario.getSalarioBase()) + "\n");
+            writer.write("Motivo da rescisão: \t" + funcionario.getTipoRescisao().getDescricao() + "\n\n");
+
+            writer.write("Descrição das verbas \t\t | Valor\t | FGTS\n");
+            writer.write("-----------------------------------------\n");
+            writer.write(String.format("Aviso Prévio Indenizado: \t | %,.2f\t | %,.2f\n", detalhes.get("Aviso Prévio Indenizado"), detalhes.get("FGTS sobre Aviso Prévio")));
+            writer.write(String.format("13º Salário sobre Aviso: \t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário sobre Aviso"), detalhes.get("FGTS sobre 13º Aviso")));
+            writer.write(String.format("Férias Salário sobre Aviso: \t | %,.2f\t | \n", detalhes.get("Férias Salário sobre Aviso")));
+            writer.write(String.format("1/3 Férias Salário sobre Aviso: \t | %,.2f\t | \n", detalhes.get("1/3 Férias Salário sobre Aviso")));
+            writer.write("-----------------------------------------\n");
+            writer.write(String.format("Saldo de Salário: \t\t | %,.2f\t | %,.2f\n", detalhes.get("Saldo de Salário"), detalhes.get("FGTS sobre Saldo de Salário")));
+            writer.write(String.format("13º Salário Proporcional: \t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário Proporcional"), detalhes.get("FGTS sobre 13º Proporcional")));
+            writer.write(String.format("Férias Proporcionais: \t\t | %,.2f\t | \n", detalhes.get("Férias Proporcionais")));
+            writer.write(String.format("1/3 Férias Proporcionais: \t | %,.2f\t | \n", detalhes.get("1/3 Férias Proporcionais")));
+            writer.write(String.format("Férias Vencidas: \t\t | %,.2f\t | \n", detalhes.get("Férias Vencidas")));
+            writer.write(String.format("1/3 Férias Vencidas: \t\t | %,.2f\t | \n", detalhes.get("1/3 Férias Vencidas")));
+            writer.write("-----------------------------------------\n");
+            writer.write(String.format("Indenização adicional (Lei nº 7.238/1984 art. 9º): \t | %,.2f\t | \n", detalhes.get("Indenização adicional (Lei nº 7.238/1984 art. 9º)")));
+            writer.write(String.format("Multa atraso pagto rescisão: \t | %,.2f\t | \n", detalhes.get("Multa atraso pagto rescisão")));
+            writer.write("-----------------------------------------\n\n");
+            writer.write(String.format("Total Rescisao: \t\t\t | %,.2f\t | \n\n", detalhes.get("Total Rescisao")));
+
+            // Incluir o valor de descontos
+            writer.write("Descontos: " + String.format("%,.2f", funcionario.getOutrosDescontos()) + "\n");
+            writer.write("-----------------------------------------\n\n");
+            writer.write("Estimativa do FGTS não depositado (sobre salários): \t" + String.format("%,.2f", detalhes.get("FGTS não depositado admissão até demissão")) + "\n");
+            writer.write("FGTS sobre verbas rescisórias: \t" + String.format("%,.2f", detalhes.get("FGTS Total Rescisão")) + "\n");
+            if (funcionario.getTipoRescisao() == TipoRescisao.SEM_JUSTA_CAUSA || funcionario.getTipoRescisao() == TipoRescisao.RESCISAO_INDIRETA || funcionario.getTipoRescisao() == TipoRescisao.FALECIMENTO_DO_EMPREGADO) {
+                writer.write("Multa 40% sobre FGTS: \t" + String.format("%,.2f", detalhes.get("Multa 40% sobre FGTS")) + "\n");
+            } else if (funcionario.getTipoRescisao() == TipoRescisao.ACORDO_ENTRE_AS_PARTES || funcionario.getTipoRescisao() == TipoRescisao.RESCISAO_POR_CULPA_RECIPROCA) {
+                writer.write("Multa 20% sobre FGTS: \t" + String.format("%,.2f", detalhes.get("Multa 20% sobre FGTS")) + "\n");
+            }
+            writer.write("-----------------------------------------\n\n");
+
+            // Assinatura
+            writer.write("\n\n Anderson Marinho - ADS Coder Github: @advmarinho ");
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
