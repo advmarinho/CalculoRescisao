@@ -91,45 +91,54 @@ public class Main {
                     Map<String, Double> detalhes = Rescisao.calcularDetalhesRescisao(funcionario);
 
                     StringBuilder mensagem = new StringBuilder();
-                    mensagem.append("Dados para o cálculo:\n");
+                    mensagem.append("Dados para o cálculo: \n");
                     mensagem.append("-----------------------------------------\n");
-                    mensagem.append("Nome do funcionário:\t").append(funcionario.getNome()).append("\n");
-                    mensagem.append("Data de admissão:\t").append(funcionario.getDataAdmissao().format(formatter)).append("\n");
-                    mensagem.append("Data de demissão:\t").append(funcionario.getDataDemissao().format(formatter)).append("\n");
-                    mensagem.append("Último salário:\t").append(String.format("%,.2f", funcionario.getSalarioBase())).append("\n");
-                    mensagem.append("Motivo da rescisão:\t").append(funcionario.getTipoRescisao().getDescricao()).append("\n\n");
+                    mensagem.append("Nome do funcionário: \t").append(funcionario.getNome()).append("\n");
+                    mensagem.append("Data de admissão: \t").append(funcionario.getDataAdmissao().format(formatter)).append("\n");
+                    mensagem.append("Data de demissão: \t").append(funcionario.getDataDemissao().format(formatter)).append("\n");
+                    mensagem.append("Último salário: \t").append(String.format("%,.2f", funcionario.getSalarioBase())).append("\n");
+                    mensagem.append("Motivo da rescisão: \t").append(funcionario.getTipoRescisao().getDescricao()).append("\n\n");
 
-                    mensagem.append("Descrição das verbas\t\t | Valor\t | FGTS\n");
+                    mensagem.append("Descrição das verbas \t\t | Valor\t | FGTS\n");
                     mensagem.append("-----------------------------------------\n");
-                    mensagem.append(String.format("Aviso Prévio Indenizado:\t | %,.2f\t | %,.2f\n", detalhes.get("Aviso Prévio Indenizado"), detalhes.get("FGTS sobre Aviso Prévio")));
-                    mensagem.append(String.format("13º Salário sobre Aviso:\t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário sobre Aviso"), detalhes.get("FGTS sobre 13º Aviso")));
-                    mensagem.append(String.format("Férias Salário sobre Aviso:\t | %,.2f\t | \n", detalhes.get("Férias Salário sobre Aviso")));
-                    mensagem.append(String.format("1/3 Férias Salário sobre Aviso:\t | %,.2f\t | \n", detalhes.get("1/3 Férias Salário sobre Aviso")));
+                    mensagem.append(String.format("Aviso Prévio Indenizado: \t | %,.2f\t | %,.2f\n", detalhes.get("Aviso Prévio Indenizado"), detalhes.get("FGTS sobre Aviso Prévio")));
+                    mensagem.append(String.format("13º Salário sobre Aviso: \t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário sobre Aviso"), detalhes.get("FGTS sobre 13º Aviso")));
+                    mensagem.append(String.format("Férias Salário sobre Aviso: \t | %,.2f\t | \n", detalhes.get("Férias Salário sobre Aviso")));
+                    mensagem.append(String.format("1/3 Férias Salário sobre Aviso: \t | %,.2f\t | \n", detalhes.get("1/3 Férias Salário sobre Aviso")));
                     mensagem.append("-----------------------------------------\n");
-                    mensagem.append(String.format("Saldo de Salário:\t\t | %,.2f\t | %,.2f\n", detalhes.get("Saldo de Salário"), detalhes.get("FGTS sobre Saldo de Salário")));
-                    mensagem.append(String.format("13º Salário Proporcional:\t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário Proporcional"), detalhes.get("FGTS sobre 13º Proporcional")));
-                    mensagem.append(String.format("Férias Proporcionais:\t\t | %,.2f\t | \n", detalhes.get("Férias Proporcionais")));
-                    mensagem.append(String.format("1/3 Férias Proporcionais:\t | %,.2f\t | \n", detalhes.get("1/3 Férias Proporcionais")));
-                    mensagem.append(String.format("Férias Vencidas:\t\t | %,.2f\t | \n", detalhes.get("Férias Vencidas")));
-                    mensagem.append(String.format("1/3 Férias Vencidas:\t\t | %,.2f\t | \n", detalhes.get("1/3 Férias Vencidas")));
+                    mensagem.append(String.format("Saldo de Salário: \t\t | %,.2f\t | %,.2f\n", detalhes.get("Saldo de Salário"), detalhes.get("FGTS sobre Saldo de Salário")));
+                    mensagem.append(String.format("13º Salário Proporcional: \t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário Proporcional"), detalhes.get("FGTS sobre 13º Proporcional")));
+                    mensagem.append(String.format("Férias Proporcionais: \t\t | %,.2f\t | \n", detalhes.get("Férias Proporcionais")));
+                    mensagem.append(String.format("1/3 Férias Proporcionais: \t | %,.2f\t | \n", detalhes.get("1/3 Férias Proporcionais")));
+                    mensagem.append(String.format("Férias Vencidas: \t\t | %,.2f\t | \n", detalhes.get("Férias Vencidas")));
+                    mensagem.append(String.format("1/3 Férias Vencidas: \t\t | %,.2f\t | \n", detalhes.get("1/3 Férias Vencidas")));
                     mensagem.append("-----------------------------------------\n");
-                    mensagem.append(String.format("Indenização adicional (Lei nº 7.238/1984 art. 9º):\t | %,.2f\t | \n", detalhes.get("Indenização adicional (Lei nº 7.238/1984 art. 9º)")));
-                    mensagem.append(String.format("Multa atraso pagto rescisão:\t | %,.2f\t | \n", detalhes.get("Multa atraso pagto rescisão")));
+                    mensagem.append(String.format("Indenização adicional (Lei nº 7.238/1984 art. 9º): \t | %,.2f\t | \n", detalhes.get("Indenização adicional (Lei nº 7.238/1984 art. 9º)")));
+                    mensagem.append(String.format("Multa atraso pagto rescisão: \t | %,.2f\t | \n", detalhes.get("Multa atraso pagto rescisão")));
                     mensagem.append("-----------------------------------------\n\n");
-                    mensagem.append(String.format("Total Rescisao:\t\t\t | %,.2f\t | \n\n", detalhes.get("Total Rescisao")));
+                    mensagem.append(String.format("Total Rescisao: \t\t\t | %,.2f\t | \n\n", detalhes.get("Total Rescisao")));
 
                     // Incluir o valor de descontos
-                    mensagem.append("Descontos: ").append(String.format("%,.2f", funcionario.getOutrosDescontos())).append("\n\n");
+                    mensagem.append("Descontos: ").append(String.format("%,.2f", funcionario.getOutrosDescontos())).append("\n");
+                    mensagem.append("-----------------------------------------\n\n");
+                    mensagem.append("Estimativa do FGTS não depositado (sobre salários): \t").append(String.format("%,.2f", detalhes.get("FGTS não depositado admissão até demissão"))).append("\n");
+                    mensagem.append("FGTS sobre verbas rescisórias: \t").append(String.format("%,.2f", detalhes.get("FGTS Total Rescisão"))).append("\n");
+                    if (tipoRescisao == TipoRescisao.SEM_JUSTA_CAUSA || tipoRescisao == TipoRescisao.RESCISAO_INDIRETA || tipoRescisao == TipoRescisao.FALECIMENTO_DO_EMPREGADO) {
+                        mensagem.append("Multa 40% sobre FGTS: \t").append(String.format("%,.2f", detalhes.get("Multa 40% sobre FGTS"))).append("\n");
+                    } else if (tipoRescisao == TipoRescisao.ACORDO_ENTRE_AS_PARTES || tipoRescisao == TipoRescisao.RESCISAO_POR_CULPA_RECIPROCA) {
+                        mensagem.append("Multa 20% sobre FGTS: \t").append(String.format("%,.2f", detalhes.get("Multa 20% sobre FGTS"))).append("\n");
+                    }
+                    mensagem.append("-----------------------------------------\n\n");
 
-                    mensagem.append("Estimativa do FGTS não depositado (sobre salários):\t").append(String.format("%,.2f", detalhes.get("FGTS não depositado admissão até demissão"))).append("\n");
-                    mensagem.append("FGTS sobre verbas rescisórias:\t").append(String.format("%,.2f", detalhes.get("FGTS Total Rescisão"))).append("\n");
-                    mensagem.append("Multa 40% sobre FGTS:\t").append(String.format("%,.2f", detalhes.get("Multa 40% sobre FGTS"))).append("\n");
-
-                    //Coloque minha assinatura By Anderson Marinho
+                    // Coloque minha assinatura By Anderson Marinho
                     mensagem.append("\n\n Anderson Marinho - ADS Coder Github: @advmarinho ");
 
-
                     JOptionPane.showMessageDialog(null, mensagem.toString(), "Cálculo TRCT Prévia Cromex", JOptionPane.INFORMATION_MESSAGE);
+
+                    // Exportar para TXT
+                    String nomeArquivo = "rescisao_" + funcionario.getNome().replaceAll(" ", "_") + ".txt";
+                    ExportadorTXT.exportar(nomeArquivo, funcionario, detalhes);
+
                     break; // Se tudo estiver correto, sai do loop
                 } catch (DateTimeParseException e) {
                     JOptionPane.showMessageDialog(null, "Data inválida. Use o formato dd/MM/yyyy e verifique se o dia, mês e ano são válidos.");
