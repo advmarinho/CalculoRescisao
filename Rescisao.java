@@ -26,11 +26,54 @@ public class Rescisao {
         }
 
         // Cálculo das verbas rescisórias baseado no tipo de rescisão
-        double avisoPrevioIndenizado = tipoRescisao == TipoRescisao.PEDIDO_DE_DEMISSAO ? 0 : (salarioBase / 30) * diasAvisoPrevio;
+        double avisoPrevioIndenizado = (tipoRescisao == TipoRescisao.PEDIDO_DE_DEMISSAO || tipoRescisao == TipoRescisao.POR_JUSTA_CAUSA || tipoRescisao == TipoRescisao.FALECIMENTO_DO_EMPREGADO) ? 0 : (salarioBase / 30) * diasAvisoPrevio;
         double saldoDeSalario = (salarioBase / 30) * diasTrabalhadosNoMes;
         double decimoTerceiroProporcional = (salarioBase / 12) * mesesTrabalhadosNoAno;
         double feriasProporcionais = (salarioBase / 12) * mesesTrabalhadosNoAno;
         double tercoFeriasProporcionais = feriasProporcionais / 3;
+
+        // Zerar valores não devidos de acordo com o tipo de rescisão
+        switch (tipoRescisao) {
+            case POR_JUSTA_CAUSA:
+                avisoPrevioIndenizado = 0;
+                feriasProporcionais = 0;
+                tercoFeriasProporcionais = 0;
+                decimoTerceiroProporcional = 0;
+                indenizacaoAdicional = 0;
+                multaAtrasoPagamento = 0;
+                break;
+
+            case TERMINO_CONTRATO_EXPERIENCIA:
+                avisoPrevioIndenizado = 0;
+                feriasVencidas = 0;
+                indenizacaoAdicional = 0;
+                multaAtrasoPagamento = 0;
+                break;
+
+            case FALECIMENTO_DO_EMPREGADO:
+                avisoPrevioIndenizado = 0;
+                indenizacaoAdicional = 0;
+
+                break;
+
+            case PEDIDO_DE_DEMISSAO:
+                indenizacaoAdicional = 0;
+
+                break;
+
+            case ACORDO_ENTRE_AS_PARTES:
+                // Acordo prevê aviso prévio indenizado 50%, multa FGTS 20%
+                avisoPrevioIndenizado /= 2;
+                break;
+
+            case RESCISAO_POR_CULPA_RECIPROCA:
+                // Culpa Recíproca prevê aviso prévio indenizado 50%, multa FGTS 20%
+                avisoPrevioIndenizado /= 2;
+                break;
+
+            default:
+                break;
+        }
 
         // Colocar os detalhes das verbas rescisórias
         detalhes.put("Aviso Prévio Indenizado", avisoPrevioIndenizado);
@@ -62,8 +105,16 @@ public class Rescisao {
         // Somar todos os FGTS calculados
         double fgtsTotal = fgtsRescisaoSoma + fgtsNaoDepositado;
 
-        // Cálculo da multa de 40% sobre o FGTS
-        double multa40Fgts = fgtsTotal * 0.40;
+        // Cálculo da multa de 40% ou 20% sobre o FGTS
+        double multa40Fgts = 0;
+        double multa20Fgts = 0;
+        if (tipoRescisao == TipoRescisao.SEM_JUSTA_CAUSA || tipoRescisao == TipoRescisao.RESCISAO_INDIRETA || tipoRescisao == TipoRescisao.FALECIMENTO_DO_EMPREGADO) {
+            multa40Fgts = fgtsTotal * 0.40;
+            detalhes.put("Multa 40% sobre FGTS", multa40Fgts);
+        } else if (tipoRescisao == TipoRescisao.ACORDO_ENTRE_AS_PARTES || tipoRescisao == TipoRescisao.RESCISAO_POR_CULPA_RECIPROCA) {
+            multa20Fgts = fgtsTotal * 0.20;
+            detalhes.put("Multa 20% sobre FGTS", multa20Fgts);
+        }
 
         // Adicionar ao mapa de detalhes
         detalhes.put("FGTS sobre Saldo de Salário", fgtsSobreSaldoSalario);
@@ -74,8 +125,7 @@ public class Rescisao {
         detalhes.put("FGTS sobre 13º Proporcional", fgtsSobreDecimoTerceiroProporcional);
         detalhes.put("FGTS Total Rescisão", fgtsRescisaoSoma);
         detalhes.put("FGTS não depositado admissão até demissão", fgtsNaoDepositado);
-        detalhes.put("Multa 40% sobre FGTS", multa40Fgts);
-        //Inclua descontos
+        // Inclua descontos
         detalhes.put("Outros Descontos", outrosDescontos);
 
         // Calcular o total da rescisão
