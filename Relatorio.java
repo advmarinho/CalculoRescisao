@@ -1,116 +1,56 @@
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
-public class Relatorio {
-    private Funcionario funcionario;
-    private Map<String, Double> detalhesRescisao;
-    private List<Funcionario> listaFuncionarios;
-    private TipoRescisao motivoRescisao;
+public class RelatorioRescisao {
 
-    // Getters e Setters
-    public Funcionario getFuncionario() {
-        return funcionario;
-    }
+    public static void gerarRelatorio(Funcionario funcionario, TipoRescisao tipoRescisao, Map<String, Double> detalhes, Map<String, Double> fgtsDetalhes) {
+        String fileName = "relatorio_rescisaoT.txt";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
-    public void setFuncionario(Funcionario funcionario) {
-        this.funcionario = funcionario;
-    }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write("Dados para o cálculo:\n");
+            writer.write("-----------------------------------------\n");
+            writer.write("Nome do funcionário:\t" + funcionario.getNome() + "\n");
+            writer.write("Data de admissão:\t" + funcionario.getDataAdmissao().format(formatter) + "\n");
+            writer.write("Data de demissão:\t" + funcionario.getDataDemissao().format(formatter) + "\n");
+            writer.write("Último salário:\t" + String.format("%,.2f", funcionario.getSalarioBase()) + "\n");
+            writer.write("Dias de Aviso Prévio:\t" + String.format("%,.1f", funcionario.getDiasAvisoPrevio()) + "\n");
+            writer.write("Motivo da rescisão:\t" + tipoRescisao + "\n\n");
 
-    public Map<String, Double> getDetalhesRescisao() {
-        return detalhesRescisao;
-    }
+            writer.write("Descrição das verbas\t\t | Valor\t | FGTS\n");
+            writer.write("-----------------------------------------\n");
+            writer.write(String.format("Aviso Prévio Indenizado:\t | %,.2f\t | %,.2f\n", detalhes.get("Aviso Prévio Indenizado"), fgtsDetalhes.get("Aviso Prévio Indenizado")));
+            writer.write(String.format("13º Salário sobre Aviso:\t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário sobre Aviso"), fgtsDetalhes.get("13º Salário sobre Aviso")));
+            writer.write(String.format("Férias Salário sobre Aviso:\t | %,.2f\t | \n", detalhes.get("Férias Salário sobre Aviso")));
+            writer.write(String.format("1/3 Férias Salário sobre Aviso:\t | %,.2f\t | \n", detalhes.get("1/3 Férias Salário sobre Aviso")));
+            writer.write("-----------------------------------------\n");
+            writer.write(String.format("Saldo de Salário:\t\t | %,.2f\t | %,.2f\n", detalhes.get("Saldo de Salário"), fgtsDetalhes.get("Saldo de Salário")));
+            writer.write(String.format("13º Salário Proporcional:\t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário Proporcional"), fgtsDetalhes.get("13º Salário Proporcional")));
+            writer.write(String.format("Férias Proporcionais:\t\t | %,.2f\t | \n", detalhes.get("Férias Proporcionais")));
+            writer.write(String.format("1/3 Férias Proporcionais:\t | %,.2f\t | \n", detalhes.get("1/3 Férias Proporcionais")));
+            writer.write(String.format("Férias Vencidas:\t\t | %,.2f\t | \n", detalhes.get("Férias Vencidas")));
+            writer.write(String.format("1/3 Férias Vencidas:\t\t | %,.2f\t | \n", detalhes.get("1/3 Férias Vencidas")));
+            writer.write("-----------------------------------------\n");
+            writer.write(String.format("Indenização adicional (Lei nº 7.238/1984 art. 9º):\t | %,.2f\t | \n", detalhes.get("Indenização adicional (Lei nº 7.238/1984 art. 9º)")));
+            writer.write(String.format("Multa atraso pagto rescisão:\t | %,.2f\t | \n", detalhes.get("Multa atraso pagto rescisão")));
+            writer.write(String.format("Total Rescisao:\t\t\t | %,.2f\t | \n\n", detalhes.get("Total Rescisao")));
 
-    public void setDetalhesRescisao(Map<String, Double> detalhesRescisao) {
-        this.detalhesRescisao = detalhesRescisao;
-    }
+            writer.write(String.format("Estimativa do FGTS não depositado (sobre salários)\t | \t | %,.2f\n", fgtsDetalhes.get("Estimativa FGTS não depositado")));
+            writer.write(String.format("Multa 40% sobre FGTS\t\t | %,.2f\t | \n", fgtsDetalhes.get("Multa 40% sobre FGTS")));
+            writer.write(String.format("Total FGTS\t\t\t | %,.2f\t | \n", fgtsDetalhes.get("Total FGTS")));
 
-    public List<Funcionario> getListaFuncionarios() {
-        return listaFuncionarios;
-    }
-
-    public void setListaFuncionarios(List<Funcionario> listaFuncionarios) {
-        this.listaFuncionarios = listaFuncionarios;
-    }
-
-    public TipoRescisao getMotivoRescisao() {
-        return motivoRescisao;
-    }
-
-    public void setMotivoRescisao(TipoRescisao motivoRescisao) {
-        this.motivoRescisao = motivoRescisao;
-    }
-
-    // Métodos
-    public void gerarRelatorio(CalculoRescisao calculo) {
-        detalhesRescisao.put("Saldo de Salário", calculo.calcularSaldoSalario());
-        detalhesRescisao.put("Aviso Prévio", calculo.calcularAvisoPrevio());
-        detalhesRescisao.put("Férias Vencidas", calculo.calcularFeriasVencidas());
-        detalhesRescisao.put("13º Salário", calculo.calcularDecimoTerceiro());
-        detalhesRescisao.put("Multa FGTS", calculo.calcularMultaFGTS());
-        detalhesRescisao.put("INSS", calculo.calcularINSS());
-        detalhesRescisao.put("IRRF", calculo.calcularIRRF());
-        detalhesRescisao.put("Total Rescisão", calculo.calcularTotalRescisao());
-    }
-
-    public void salvarRelatorio(String caminho) {
-        File file = new File(caminho);
-        File dir = file.getParentFile();
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
-
-        NumberFormat numberFormat = NumberFormat.getInstance(new Locale("pt", "BR"));
-        numberFormat.setMinimumFractionDigits(2);
-        numberFormat.setMaximumFractionDigits(2);
-
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write("Relatório de Rescisão\n");
-            writer.write("=====================\n");
-            writer.write("Nome: " + funcionario.getNome() + "\n");
-            writer.write("Data de Admissão: " + funcionario.getDataAdmissao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n");
-            writer.write("Data de Demissão: " + funcionario.getDataDemissao().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) + "\n");
-            writer.write("Último Salário: R$ " + numberFormat.format(funcionario.getSalarioBase()) + "\n");
-
-            writer.write("Motivo da Rescisão: " + motivoRescisao.toString().replace('_', ' ').toLowerCase() + "\n");
-
-            double saldoSalario = detalhesRescisao.get("Saldo de Salário");
-            int diasTrabalhados = funcionario.getDataDemissao().getDayOfMonth();
-            writer.write("Saldo de Salário: Dias: " + diasTrabalhados + ", Valor: R$ " + numberFormat.format(saldoSalario) + "\n");
-
-            double avisoPrevio = detalhesRescisao.get("Aviso Prévio");
-            long anosDeServico = ChronoUnit.YEARS.between(funcionario.getDataAdmissao(), funcionario.getDataDemissao());
-            long diasAvisoPrevio = 30 + (anosDeServico * 3);
-            if (diasAvisoPrevio > 90) {
-                diasAvisoPrevio = 90;
-            }
-            writer.write("Aviso Prévio Indenizado: Dias: " + diasAvisoPrevio + ", Valor: R$ " + numberFormat.format(avisoPrevio) + "\n");
-
-            writer.write("\nDescrição das Verbas:\n");
-            writer.write("=====================\n");
-            for (Map.Entry<String, Double> entry : detalhesRescisao.entrySet()) {
-                writer.write(entry.getKey() + ": R$ " + numberFormat.format(entry.getValue()) + "\n");
-            }
-
-            double outrosDescontos = funcionario.getOutrosDescontos();
-            writer.write("Valor do desconto outros digitado: R$ " + numberFormat.format(outrosDescontos) + "\n");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void gerarRelatorioParaTodos(CalculoRescisao calculo) {
-        for (Funcionario func : listaFuncionarios) {
-            this.funcionario = func;
-            gerarRelatorio(calculo);
-            salvarRelatorio("relatorios/relatorio_" + func.getNome() + ".txt");
-        }
+    public static void gerarRelatorio(String nome, LocalDate localDate, LocalDate localDate2, double double1,
+            String string, Map<String, Double> detalhes, Map<String, Double> fgtsDetalhes) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'gerarRelatorio'");
     }
 }
