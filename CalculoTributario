@@ -1,0 +1,37 @@
+public class CalculoTributario {
+    private Funcionario funcionario;
+
+    public CalculoTributario(Funcionario funcionario) {
+        this.funcionario = funcionario;
+    }
+
+    public double calcularINSS() {
+        double salario = funcionario.getSalarioBase();
+        if (salario <= 1212.00) {
+            return salario * 0.075;
+        } else if (salario <= 2427.35) {
+            return 1212.00 * 0.075 + (salario - 1212.00) * 0.09;
+        } else if (salario <= 3641.03) {
+            return 1212.00 * 0.075 + (2427.35 - 1212.00) * 0.09 + (salario - 2427.35) * 0.12;
+        } else if (salario <= 7087.22) {
+            return 1212.00 * 0.075 + (2427.35 - 1212.00) * 0.09 + (3641.03 - 2427.35) * 0.12 + (salario - 3641.03) * 0.14;
+        } else {
+            return 1212.00 * 0.075 + (2427.35 - 1212.00) * 0.09 + (3641.03 - 2427.35) * 0.12 + (7087.22 - 3641.03) * 0.14;
+        }
+    }
+
+    public double calcularIRRF() {
+        double salario = funcionario.getSalarioBase() - calcularINSS();
+        if (salario <= 1903.98) {
+            return 0.0;
+        } else if (salario <= 2826.65) {
+            return (salario * 0.075) - 142.80;
+        } else if (salario <= 3751.05) {
+            return (salario * 0.15) - 354.80;
+        } else if (salario <= 4664.68) {
+            return (salario * 0.225) - 636.13;
+        } else {
+            return (salario * 0.275) - 869.36;
+        }
+    }
+}
