@@ -1,204 +1,151 @@
-import javax.swing.*;
-import javax.swing.text.MaskFormatter;
-import java.awt.*;
-import java.text.ParseException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.Map;
 
-public class Main {
-    public static void main(String[] args) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+public class Rescisao {
 
-        // Painel para coleta de dados
-        JPanel panel = new JPanel(new GridLayout(12, 2));
+    public static Map<String, Double> calcularDetalhesRescisao(Funcionario funcionario) {
+        Map<String, Double> detalhes = new HashMap<>();
+        double salarioBase = funcionario.getSalarioBase();
+        double outrosDescontos = funcionario.getOutrosDescontos();
+        double feriasVencidas = funcionario.getFeriasVencidas();
+        double indenizacaoAdicional = funcionario.getIndenizacaoAdicional();
+        double multaAtrasoPagamento = funcionario.getMultaAtrasoPagamento();
+        int diasAvisoPrevio = funcionario.getDiasAvisoPrevio();
+        LocalDate dataAdmissao = funcionario.getDataAdmissao();
+        LocalDate dataDemissao = funcionario.getDataDemissao();
+        TipoRescisao tipoRescisao = funcionario.getTipoRescisao();
 
-        JTextField nomeField = new JTextField("NOME");
-        JFormattedTextField dataAdmissaoField = createFormattedField("##/##/####");
-        JFormattedTextField dataDemissaoField = createFormattedField("##/##/####");
-        JFormattedTextField salarioBaseField = createFormattedFieldWithMaxLength();
-        JFormattedTextField valorFeriasVencidasField = createFormattedFieldWithMaxLength();
-        JFormattedTextField indenizacaoAdicionalField = createFormattedFieldWithMaxLength();
-        JFormattedTextField multaAtrasoPagamentoField = createFormattedFieldWithMaxLength();
-        JFormattedTextField outrosDescontosField = createFormattedFieldWithMaxLength();
-        JFormattedTextField diasAvisoPrevioField = createFormattedField("##");
+        // Calcula os dias trabalhados no mês de demissão
+        int diasTrabalhadosNoMes = dataDemissao.getDayOfMonth();
 
-        // Configuração de valores padrão
-        diasAvisoPrevioField.setText("30");
-        salarioBaseField.setText("0.00");
-        valorFeriasVencidasField.setText("0.00");
-        indenizacaoAdicionalField.setText("0.00");
-        multaAtrasoPagamentoField.setText("0.00");
-        outrosDescontosField.setText("0.00");
-
-        // Adicionando verificadores de entrada
-        dataAdmissaoField.setInputVerifier(new DateInputVerifier());
-        dataDemissaoField.setInputVerifier(new DateInputVerifier());
-
-        JComboBox<TipoRescisao> tipoRescisaoComboBox = new JComboBox<>(TipoRescisao.values());
-
-        panel.add(new JLabel("Nome: *"));
-        panel.add(nomeField);
-        panel.add(new JLabel("Data de Admissão (dd/MM/yyyy): *"));
-        panel.add(dataAdmissaoField);
-        panel.add(new JLabel("Data de Demissão (dd/MM/yyyy): *"));
-        panel.add(dataDemissaoField);
-        panel.add(new JLabel("Dias de Aviso Prévio: *"));
-        panel.add(diasAvisoPrevioField);
-        panel.add(new JLabel("Salário Base: *"));
-        panel.add(salarioBaseField);
-        panel.add(new JLabel("Valor de Férias Vencidas:"));
-        panel.add(valorFeriasVencidasField);
-        panel.add(new JLabel("Indenização Adicional:"));
-        panel.add(indenizacaoAdicionalField);
-        panel.add(new JLabel("Multa por Atraso de Pagamento:"));
-        panel.add(multaAtrasoPagamentoField);
-        panel.add(new JLabel("Outros Descontos:"));
-        panel.add(outrosDescontosField);
-        panel.add(new JLabel("Tipo de Rescisão: *"));
-        panel.add(tipoRescisaoComboBox);
-
-        while (true) {
-            int result = JOptionPane.showConfirmDialog(null, panel, "RPA Cromex - Preencha os Dados para Prévia TRCT", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-            if (result == JOptionPane.OK_OPTION) {
-                try {
-                    String nome = nomeField.getText();
-                    LocalDate dataAdmissao = validateDate(dataAdmissaoField.getText());
-                    LocalDate dataDemissao = validateDate(dataDemissaoField.getText());
-                    double salarioBase = parseFormattedText(salarioBaseField.getText());
-                    int diasAvisoPrevio = Integer.parseInt(diasAvisoPrevioField.getText());
-                    double feriasVencidas = parseFormattedText(valorFeriasVencidasField.getText());
-                    double indenizacaoAdicional = parseFormattedText(indenizacaoAdicionalField.getText());
-                    double multaAtrasoPagamento = parseFormattedText(multaAtrasoPagamentoField.getText());
-                    double outrosDescontos = parseFormattedText(outrosDescontosField.getText());
-                    TipoRescisao tipoRescisao = (TipoRescisao) tipoRescisaoComboBox.getSelectedItem();
-
-                    Funcionario funcionario = new Funcionario(
-                            nome,
-                            dataAdmissao,
-                            dataDemissao,
-                            salarioBase,
-                            outrosDescontos,
-                            feriasVencidas,
-                            indenizacaoAdicional,
-                            multaAtrasoPagamento,
-                            tipoRescisao,
-                            diasAvisoPrevio
-                    );
-
-                    Map<String, Double> detalhes = Rescisao.calcularDetalhesRescisao(funcionario);
-
-                    StringBuilder mensagem = new StringBuilder();
-                    mensagem.append("Dados para o cálculo: \n");
-                    mensagem.append("-----------------------------------------\n");
-                    mensagem.append("Nome do funcionário: \t").append(funcionario.getNome()).append("\n");
-                    mensagem.append("Data de admissão: \t").append(funcionario.getDataAdmissao().format(formatter)).append("\n");
-                    mensagem.append("Data de demissão: \t").append(funcionario.getDataDemissao().format(formatter)).append("\n");
-                    mensagem.append("Último salário: \t").append(String.format("%,.2f", funcionario.getSalarioBase())).append("\n");
-                    mensagem.append("Motivo da rescisão: \t").append(funcionario.getTipoRescisao().getDescricao()).append("\n\n");
-
-                    mensagem.append("Descrição das verbas \t\t | Valor\t | FGTS\n");
-                    mensagem.append("-----------------------------------------\n");
-                    mensagem.append(String.format("Aviso Prévio Indenizado: \t | %,.2f\t | %,.2f\n", detalhes.get("Aviso Prévio Indenizado"), detalhes.get("FGTS sobre Aviso Prévio")));
-                    mensagem.append(String.format("13º Salário sobre Aviso: \t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário sobre Aviso"), detalhes.get("FGTS sobre 13º Aviso")));
-                    mensagem.append(String.format("Férias Salário sobre Aviso: \t | %,.2f\t | \n", detalhes.get("Férias Salário sobre Aviso")));
-                    mensagem.append(String.format("1/3 Férias Salário sobre Aviso: \t | %,.2f\t | \n", detalhes.get("1/3 Férias Salário sobre Aviso")));
-                    mensagem.append("-----------------------------------------\n");
-                    mensagem.append(String.format("Saldo de Salário: \t\t | %,.2f\t | %,.2f\n", detalhes.get("Saldo de Salário"), detalhes.get("FGTS sobre Saldo de Salário")));
-                    mensagem.append(String.format("13º Salário Proporcional: \t | %,.2f\t | %,.2f\n", detalhes.get("13º Salário Proporcional"), detalhes.get("FGTS sobre 13º Proporcional")));
-                    mensagem.append(String.format("Férias Proporcionais: \t\t | %,.2f\t | \n", detalhes.get("Férias Proporcionais")));
-                    mensagem.append(String.format("1/3 Férias Proporcionais: \t | %,.2f\t | \n", detalhes.get("1/3 Férias Proporcionais")));
-                    mensagem.append(String.format("Férias Vencidas: \t\t | %,.2f\t | \n", detalhes.get("Férias Vencidas")));
-                    mensagem.append(String.format("1/3 Férias Vencidas: \t\t | %,.2f\t | \n", detalhes.get("1/3 Férias Vencidas")));
-                    mensagem.append("-----------------------------------------\n");
-                    mensagem.append(String.format("Indenização adicional (Lei nº 7.238/1984 art. 9º): \t | %,.2f\t | \n", detalhes.get("Indenização adicional (Lei nº 7.238/1984 art. 9º)")));
-                    mensagem.append(String.format("Multa atraso pagto rescisão: \t | %,.2f\t | \n", detalhes.get("Multa atraso pagto rescisão")));
-                    mensagem.append("-----------------------------------------\n\n");
-                    mensagem.append(String.format("Total Rescisao: \t\t\t | %,.2f\t | \n\n", detalhes.get("Total Rescisao")));
-
-                    // Incluir o valor de descontos
-                    mensagem.append("Descontos: ").append(String.format("%,.2f", funcionario.getOutrosDescontos())).append("\n");
-                    mensagem.append("-----------------------------------------\n\n");
-                    mensagem.append("Estimativa do FGTS não depositado (sobre salários): \t").append(String.format("%,.2f", detalhes.get("FGTS não depositado admissão até demissão"))).append("\n");
-                    mensagem.append("FGTS sobre verbas rescisórias: \t").append(String.format("%,.2f", detalhes.get("FGTS Total Rescisão"))).append("\n");
-                    if (tipoRescisao == TipoRescisao.SEM_JUSTA_CAUSA || tipoRescisao == TipoRescisao.RESCISAO_INDIRETA || tipoRescisao == TipoRescisao.FALECIMENTO_DO_EMPREGADO) {
-                        mensagem.append("Multa 40% sobre FGTS: \t").append(String.format("%,.2f", detalhes.get("Multa 40% sobre FGTS"))).append("\n");
-                    } else if (tipoRescisao == TipoRescisao.ACORDO_ENTRE_AS_PARTES || tipoRescisao == TipoRescisao.RESCISAO_POR_CULPA_RECIPROCA) {
-                        mensagem.append("Multa 20% sobre FGTS: \t").append(String.format("%,.2f", detalhes.get("Multa 20% sobre FGTS"))).append("\n");
-                    }
-                    mensagem.append("-----------------------------------------\n\n");
-
-                    // Coloque minha assinatura By Anderson Marinho
-                    mensagem.append("\n\n Anderson Marinho - ADS Coder Github: @advmarinho ");
-
-                    JOptionPane.showMessageDialog(null, mensagem.toString(), "Cálculo TRCT Prévia Cromex", JOptionPane.INFORMATION_MESSAGE);
-
-                    // Exportar para TXT
-                    String nomeArquivo = "rescisao_" + funcionario.getNome().replaceAll(" ", "_") + ".txt";
-                    ExportadorTXT.exportar(nomeArquivo, funcionario, detalhes);
-
-                    break; // Se tudo estiver correto, sai do loop
-                } catch (DateTimeParseException e) {
-                    JOptionPane.showMessageDialog(null, "Data inválida. Use o formato dd/MM/yyyy e verifique se o dia, mês e ano são válidos.");
-                } catch (Exception e) {
-                    JOptionPane.showMessageDialog(null, "Erro nos dados fornecidos: " + e.getMessage());
-                }
-            } else {
-                break; // Sai do loop se o usuário cancelar
-            }
+        // Calcula os avos de 13º salário no ano da demissão
+        long avosDecimoTerceiro = dataDemissao.getMonthValue();
+        if (diasTrabalhadosNoMes < 15) { // Considere dias < 15 como mês não completo para 13º
+            avosDecimoTerceiro -= 1;
         }
-    }
 
-    private static JFormattedTextField createFormattedField(String pattern) {
-        try {
-            MaskFormatter maskFormatter = new MaskFormatter(pattern);
-            maskFormatter.setPlaceholderCharacter('0');
-            return new JFormattedTextField(maskFormatter);
-        } catch (ParseException e) {
-            throw new RuntimeException("Erro na criação do campo formatado: " + e.getMessage());
+        // Limitar os avos do 13º salário a no máximo 12
+        avosDecimoTerceiro = Math.min(avosDecimoTerceiro, 12);
+
+        // Calcula os meses trabalhados desde a admissão até a demissão
+        long mesesTrabalhados = ChronoUnit.MONTHS.between(dataAdmissao.withDayOfMonth(1), dataDemissao.withDayOfMonth(1));
+
+        // Calcula os avos de férias proporcionais
+        long avosFeriasProporcionais = mesesTrabalhados % 12;
+        if (diasTrabalhadosNoMes > 14) { // Considere dias > 14 como mês completo para férias
+            avosFeriasProporcionais += 1;
         }
-    }
 
-    private static JFormattedTextField createFormattedFieldWithMaxLength() {
-        JFormattedTextField field = new JFormattedTextField();
-        field.setColumns(10); // Define o comprimento máximo
-        return field;
-    }
+        // Limitar os avos proporcionais a no máximo 12
+        avosFeriasProporcionais = Math.min(avosFeriasProporcionais, 12);
 
-    private static LocalDate validateDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate localDate = LocalDate.parse(date, formatter);
-        if (localDate.getDayOfMonth() > localDate.lengthOfMonth()) {
-            throw new DateTimeParseException("Data inválida", date, 0);
+
+        // Cálculo das verbas rescisórias baseado no tipo de rescisão
+        double avisoPrevioIndenizado = (tipoRescisao == TipoRescisao.PEDIDO_DE_DEMISSAO || tipoRescisao == TipoRescisao.POR_JUSTA_CAUSA || tipoRescisao == TipoRescisao.FALECIMENTO_DO_EMPREGADO) ? 0 : (salarioBase / 30) * diasAvisoPrevio;
+        double saldoDeSalario = (salarioBase / 30) * diasTrabalhadosNoMes;
+        double decimoTerceiroProporcional = (salarioBase / 12) * avosDecimoTerceiro;
+        double feriasProporcionais = (salarioBase / 12) * avosFeriasProporcionais;
+        double tercoFeriasProporcionais = feriasProporcionais / 3;
+
+        // Zerar valores não devidos de acordo com o tipo de rescisão
+        switch (tipoRescisao) {
+            case POR_JUSTA_CAUSA:
+                avisoPrevioIndenizado = 0;
+                feriasProporcionais = 0;
+                tercoFeriasProporcionais = 0;
+                decimoTerceiroProporcional = 0;
+                indenizacaoAdicional = 0;
+                multaAtrasoPagamento = 0;
+                break;
+
+            case TERMINO_CONTRATO_EXPERIENCIA:
+                avisoPrevioIndenizado = 0;
+                feriasVencidas = 0;
+                indenizacaoAdicional = 0;
+                multaAtrasoPagamento = 0;
+                break;
+
+            case FALECIMENTO_DO_EMPREGADO:
+                avisoPrevioIndenizado = 0;
+                indenizacaoAdicional = 0;
+                break;
+
+            case PEDIDO_DE_DEMISSAO:
+                indenizacaoAdicional = 0;
+                break;
+
+            case ACORDO_ENTRE_AS_PARTES:
+                // Acordo prevê aviso prévio indenizado 50%, multa FGTS 20%
+                avisoPrevioIndenizado /= 2;
+                break;
+
+            case RESCISAO_POR_CULPA_RECIPROCA:
+                // Culpa Recíproca prevê aviso prévio indenizado 50%, multa FGTS 20%
+                avisoPrevioIndenizado /= 2;
+                break;
+
+            default:
+                break;
         }
-        return localDate;
-    }
 
-    private static double parseFormattedText(String text) {
-        return Double.parseDouble(text.replace(",", "."));
-    }
+        // Colocar os detalhes das verbas rescisórias
+        detalhes.put("Aviso Prévio Indenizado", avisoPrevioIndenizado);
+        detalhes.put("13º Salário sobre Aviso", avisoPrevioIndenizado / 12);
+        detalhes.put("Férias Salário sobre Aviso", avisoPrevioIndenizado / 12);
+        detalhes.put("1/3 Férias Salário sobre Aviso", avisoPrevioIndenizado / 12 / 3);
+        detalhes.put("Saldo de Salário", saldoDeSalario);
+        detalhes.put("13º Salário Proporcional", decimoTerceiroProporcional);
+        detalhes.put("Férias Proporcionais", feriasProporcionais);
+        detalhes.put("1/3 Férias Proporcionais", tercoFeriasProporcionais);
+        detalhes.put("Férias Vencidas", feriasVencidas);
+        detalhes.put("1/3 Férias Vencidas", feriasVencidas / 3);
+        detalhes.put("Indenização adicional (Lei nº 7.238/1984 art. 9º)", indenizacaoAdicional);
+        detalhes.put("Multa atraso pagto rescisão", multaAtrasoPagamento);
 
-    // Validador de datas
-    static class DateInputVerifier extends InputVerifier {
-        @Override
-        public boolean verify(JComponent input) {
-            if (input instanceof JFormattedTextField) {
-                JFormattedTextField ftf = (JFormattedTextField) input;
-                String text = ftf.getText();
-                try {
-                    LocalDate date = LocalDate.parse(text, DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-                    if (!text.equals(date.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))) {
-                        throw new DateTimeParseException("Data inválida", text, 0);
-                    }
-                    return true;
-                } catch (DateTimeParseException e) {
-                    JOptionPane.showMessageDialog(null, "Data inválida. Use o formato dd/MM/yyyy e verifique se o dia, mês e ano são válidos.");
-                    return false;
-                }
-            }
-            return true;
+        // Cálculo do FGTS sobre as verbas rescisórias
+        double fgtsSobreSaldoSalario = saldoDeSalario * 0.08;
+        double fgtsSobreAvisoPrevio = avisoPrevioIndenizado * 0.08;
+        double fgtsSobreFeriasAviso = (avisoPrevioIndenizado / 12) * 0.08;
+        double fgtsSobreTercoFeriasAviso = (avisoPrevioIndenizado / 12 / 3) * 0.08;
+        double fgtsSobreDecimoTerceiroAviso = (avisoPrevioIndenizado / 12) * 0.08;
+        double fgtsSobreDecimoTerceiroProporcional = decimoTerceiroProporcional * 0.08;
+        double fgtsRescisaoSoma = fgtsSobreSaldoSalario + fgtsSobreAvisoPrevio + fgtsSobreDecimoTerceiroAviso + fgtsSobreDecimoTerceiroProporcional;
+
+        // Calcula os meses trabalhados da admissão até a demissão e o FGTS sobre o salário base
+        double fgtsNaoDepositado = mesesTrabalhados * salarioBase * 0.08;
+
+        // Somar todos os FGTS calculados
+        double fgtsTotal = fgtsRescisaoSoma + fgtsNaoDepositado;
+
+        // Cálculo da multa de 40% ou 20% sobre o FGTS
+        double multa40Fgts = 0;
+        double multa20Fgts = 0;
+        if (tipoRescisao == TipoRescisao.SEM_JUSTA_CAUSA || tipoRescisao == TipoRescisao.RESCISAO_INDIRETA || tipoRescisao == TipoRescisao.FALECIMENTO_DO_EMPREGADO) {
+            multa40Fgts = fgtsTotal * 0.40;
+            detalhes.put("Multa 40% sobre FGTS", multa40Fgts);
+        } else if (tipoRescisao == TipoRescisao.ACORDO_ENTRE_AS_PARTES || tipoRescisao == TipoRescisao.RESCISAO_POR_CULPA_RECIPROCA) {
+            multa20Fgts = fgtsTotal * 0.20;
+            detalhes.put("Multa 20% sobre FGTS", multa20Fgts);
         }
+
+        // Adicionar ao mapa de detalhes
+        detalhes.put("FGTS sobre Saldo de Salário", fgtsSobreSaldoSalario);
+        detalhes.put("FGTS sobre Aviso Prévio", fgtsSobreAvisoPrevio);
+        detalhes.put("FGTS sobre Férias Aviso", fgtsSobreFeriasAviso);
+        detalhes.put("FGTS sobre 1/3 Férias Aviso", fgtsSobreTercoFeriasAviso);
+        detalhes.put("FGTS sobre 13º Aviso", fgtsSobreDecimoTerceiroAviso);
+        detalhes.put("FGTS sobre 13º Proporcional", fgtsSobreDecimoTerceiroProporcional);
+        detalhes.put("FGTS Total Rescisão", fgtsRescisaoSoma);
+        detalhes.put("FGTS não depositado admissão até demissão", fgtsNaoDepositado);
+        // Inclua descontos
+        detalhes.put("Outros Descontos", outrosDescontos);
+
+        // Calcular o total da rescisão
+        double totalRescisao = saldoDeSalario + avisoPrevioIndenizado + decimoTerceiroProporcional + feriasProporcionais + tercoFeriasProporcionais + feriasVencidas + (feriasVencidas / 3) + indenizacaoAdicional + multaAtrasoPagamento + avisoPrevioIndenizado / 12 + avisoPrevioIndenizado / 12 + avisoPrevioIndenizado / 12 / 3 - outrosDescontos;
+        detalhes.put("Total Rescisao", totalRescisao);
+
+        return detalhes;
     }
 }
