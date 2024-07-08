@@ -115,12 +115,12 @@ public class Main {
                     mensagem.append("-----------------------------------------\n");
                     mensagem.append(String.format("Indenização adicional (Lei nº 7.238/1984 art. 9º): \t | %,.2f\t | \n", detalhes.get("Indenização adicional (Lei nº 7.238/1984 art. 9º)")));
                     mensagem.append(String.format("Multa atraso pagto rescisão: \t | %,.2f\t | \n", detalhes.get("Multa atraso pagto rescisão")));
-                    mensagem.append("-----------------------------------------\n\n");
+                    mensagem.append("-----------------------------------------\n");
                     mensagem.append(String.format("Total Rescisao: \t\t\t | %,.2f\t | \n\n", detalhes.get("Total Rescisao")));
 
                     // Incluir o valor de descontos
                     mensagem.append("Descontos: ").append(String.format("%,.2f", funcionario.getOutrosDescontos())).append("\n");
-                    mensagem.append("-----------------------------------------\n\n");
+                    mensagem.append("-----------------------------------------\n");
                     mensagem.append("Estimativa do FGTS não depositado (sobre salários): \t").append(String.format("%,.2f", detalhes.get("FGTS não depositado admissão até demissão"))).append("\n");
                     mensagem.append("FGTS sobre verbas rescisórias: \t").append(String.format("%,.2f", detalhes.get("FGTS Total Rescisão"))).append("\n");
                     if (tipoRescisao == TipoRescisao.SEM_JUSTA_CAUSA || tipoRescisao == TipoRescisao.RESCISAO_INDIRETA || tipoRescisao == TipoRescisao.FALECIMENTO_DO_EMPREGADO) {
@@ -128,10 +128,10 @@ public class Main {
                     } else if (tipoRescisao == TipoRescisao.ACORDO_ENTRE_AS_PARTES || tipoRescisao == TipoRescisao.RESCISAO_POR_CULPA_RECIPROCA) {
                         mensagem.append("Multa 20% sobre FGTS: \t").append(String.format("%,.2f", detalhes.get("Multa 20% sobre FGTS"))).append("\n");
                     }
-                    mensagem.append("-----------------------------------------\n\n");
+                    mensagem.append("-----------------------------------------\n");
 
                     // Coloque minha assinatura By Anderson Marinho
-                    mensagem.append("\n\n Anderson Marinho - ADS Coder Github: @advmarinho ");
+                    mensagem.append("\n Anderson Marinho - ADS Coder Github: @advmarinho ");
 
                     JOptionPane.showMessageDialog(null, mensagem.toString(), "Cálculo TRCT Prévia Cromex", JOptionPane.INFORMATION_MESSAGE);
 
